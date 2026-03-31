@@ -1,0 +1,308 @@
+@use '../../../styles/variables' as *;
+@use '../../../styles/mixins' as *;
+
+.featured-products {
+  padding: $spacing-4xl 0;
+  background: var(--color-background);
+
+  .container {
+    @include container;
+  }
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: $spacing-4xl;
+  animation: fadeInUp 0.8s ease-out;
+}
+
+.section-badge {
+  display: inline-block;
+  padding: $spacing-sm $spacing-lg;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: $border-radius-full;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: var(--color-primary);
+  margin-bottom: $spacing-lg;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.section-title {
+  font-size: $font-size-4xl;
+  font-weight: $font-weight-extrabold;
+  margin-bottom: $spacing-md;
+
+  @include respond-to(md) {
+    font-size: $font-size-5xl;
+  }
+}
+
+.section-description {
+  font-size: $font-size-lg;
+  color: var(--color-text-secondary);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.products-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $spacing-2xl;
+  margin-bottom: $spacing-4xl;
+
+  @include respond-to(sm) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @include respond-to(lg) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @include respond-to(xl) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.product-card {
+  position: relative;
+  width: 100%;
+  @include card;
+  padding: $spacing-lg;
+  transition: all $transition-base;
+  animation: fadeInUp 0.6s ease-out backwards;
+
+  @for $i from 1 through 6 {
+    &:nth-child(#{$i}) {
+      animation-delay: #{$i * 0.1}s;
+    }
+  }
+
+  &:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-xl);
+
+    .product-overlay {
+      opacity: 1;
+      visibility: visible;
+    }
+  }
+}
+
+.product-badge {
+  position: absolute;
+  top: $spacing-xl;
+  left: $spacing-xl;
+  padding: $spacing-xs $spacing-md;
+  border-radius: $border-radius-md;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-bold;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  z-index: 2;
+  background: var(--color-text-primary);
+  color: var(--color-background);
+
+  &.sale {
+    background: var(--color-accent);
+    color: var(--color-surface-elevated);
+  }
+
+  &.new {
+    background: var(--color-secondary);
+    color: var(--color-surface-elevated);
+  }
+}
+
+.product-image {
+  display: block;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: $border-radius-lg;
+  overflow: hidden;
+  margin-bottom: $spacing-lg;
+  text-decoration: none;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform $transition-slow;
+  }
+}
+
+.product-card:hover .product-image img {
+  transform: scale(1.1);
+}
+
+.product-overlay {
+  @include absolute-cover;
+  @include flex-center;
+  flex-direction: column;
+  gap: $spacing-md;
+  background: rgba(0, 0, 0, 0.7);
+  opacity: 0;
+  visibility: hidden;
+  transition: all $transition-base;
+  padding: $spacing-lg;
+}
+
+.quick-action {
+  width: 44px;
+  height: 44px;
+  @include flex-center;
+  background: var(--color-surface-elevated);
+  color: var(--color-text-primary);
+  border-radius: $border-radius-full;
+  transition: all $transition-fast;
+  border: 1px solid var(--color-border);
+
+  &:hover {
+    background: var(--color-primary);
+    color: var(--color-surface-elevated);
+    border-color: var(--color-primary);
+    transform: scale(1.1);
+  }
+}
+
+.btn-add-cart {
+  padding: $spacing-md $spacing-xl;
+  background: var(--color-surface-elevated);
+  color: var(--color-text-primary);
+  font-weight: $font-weight-semibold;
+  border-radius: $border-radius-lg;
+  transition: all $transition-fast;
+  border: 1px solid var(--color-border);
+
+  &:hover {
+    background: var(--color-primary);
+    color: var(--color-surface-elevated);
+    border-color: var(--color-primary);
+    transform: translateY(-2px);
+  }
+}
+
+.product-info {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.product-category {
+  font-size: $font-size-xs;
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.product-name-link {
+  text-decoration: none;
+  color: inherit;
+
+  &:hover .product-name {
+    color: var(--color-primary);
+  }
+}
+
+.product-name {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: var(--color-text-primary);
+  @include line-clamp(2);
+  transition: color $transition-fast;
+}
+
+.product-rating {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+
+  svg {
+    color: var(--color-border);
+
+    &.filled {
+      color: #FFA500;
+    }
+  }
+
+  .rating-value {
+    font-size: $font-size-sm;
+    color: var(--color-text-secondary);
+    margin-left: $spacing-xs;
+  }
+}
+
+.product-price {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-top: $spacing-xs;
+
+  .price {
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-bold;
+    color: var(--color-text-primary);
+  }
+
+  .original-price {
+    font-size: $font-size-base;
+    color: var(--color-text-tertiary);
+    text-decoration: line-through;
+  }
+
+  .discount {
+    padding: $spacing-xs $spacing-sm;
+    background: var(--color-accent);
+    color: var(--color-surface-elevated);
+    font-size: $font-size-xs;
+    font-weight: $font-weight-bold;
+    border-radius: $border-radius-sm;
+  }
+}
+
+.section-footer {
+  text-align: center;
+  animation: fadeInUp 1s ease-out 0.6s backwards;
+}
+
+.btn-outline-large {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-lg $spacing-3xl;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: var(--color-text-primary);
+  background: transparent;
+  border: 2px solid var(--color-border);
+  border-radius: $border-radius-lg;
+  transition: all $transition-base;
+
+  svg {
+    transition: transform $transition-fast;
+  }
+
+  &:hover {
+    border-color: var(--color-primary);
+    background: var(--color-surface);
+    transform: translateY(-2px);
+
+    svg {
+      transform: translateX(4px);
+    }
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

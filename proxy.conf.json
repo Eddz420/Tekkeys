@@ -1,0 +1,11 @@
+{
+  "/odoo": {
+    "target": "https://dev-odoo.tekkeys.net",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug",
+    "pathRewrite": {
+      "^/odoo": ""
+    }
+  }
+}

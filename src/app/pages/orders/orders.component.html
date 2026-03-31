@@ -1,0 +1,151 @@
+<section class="orders-page">
+  <div class="container">
+    <div class="page-header">
+      <h1 class="page-title">Mes Commandes</h1>
+      <p class="page-subtitle">Suivez l'état de vos commandes</p>
+    </div>
+
+    <div class="orders-container">
+      @if (loading()) {
+        <div class="loading-state">
+          <div class="spinner-large"></div>
+          <p>Chargement des commandes...</p>
+        </div>
+      } @else if (orders().length === 0) {
+        <div class="empty-orders">
+          <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+            <rect x="20" y="40" width="80" height="60" rx="4" stroke="currentColor" stroke-width="3"/>
+            <path d="M40 40V30a10 10 0 0120 0v10" stroke="currentColor" stroke-width="3"/>
+            <circle cx="60" cy="70" r="8" fill="currentColor" opacity="0.3"/>
+          </svg>
+          <h3>Aucune commande</h3>
+          <p>Vous n'avez pas encore passé de commande</p>
+          <a href="/" class="btn-primary">
+            Commencer mes Achats
+          </a>
+        </div>
+      } @else {
+        <div class="orders-list">
+          @for (order of orders(); track order.id) {
+            <div class="order-card">
+              <div class="order-header">
+                <div class="order-info">
+                  <div class="order-number">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                      <rect x="3" y="6" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                      <path d="M7 6V5a2 2 0 012-2h2a2 2 0 012 2v1" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                    <strong>{{ order.order_number }}</strong>
+                  </div>
+                  <div class="order-date">{{ formatDate(order.date) }}</div>
+                </div>
+                <span class="order-status" [class]="getStatusColor(order.status)">
+                  {{ getStatusLabel(order.status) }}
+                </span>
+              </div>
+
+              <div class="order-items">
+                @for (item of order.items; track item.id) {
+                  <div class="order-item">
+                    <div class="item-image">
+                      <img [src]="item.image" [alt]="item.name">
+                    </div>
+                    <div class="item-info">
+                      <div class="item-name">{{ item.name }}</div>
+                      <div class="item-quantity">Quantité: {{ item.quantity }}</div>
+                    </div>
+                    <div class="item-price">${{ item.price }}</div>
+                  </div>
+                }
+              </div>
+
+              <div class="order-footer">
+                <div class="order-total">
+                  <span>Total:</span>
+                  <strong>${{ order.total.toFixed(2) }}</strong>
+                </div>
+                <button class="btn-details" (click)="viewOrderDetails(order)">
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                    <circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M9 12V9M9 6h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                  Voir les détails
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+@if (selectedOrder()) {
+  <div class="modal-overlay" (click)="closeOrderDetails()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h2>Détails de la Commande</h2>
+          <p class="modal-subtitle">{{ selectedOrder()!.order_number }}</p>
+        </div>
+        <button class="btn-close" (click)="closeOrderDetails()">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="detail-section">
+          <h3>Informations</h3>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <span class="detail-label">Date de commande</span>
+              <span class="detail-value">{{ formatDate(selectedOrder()!.date) }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Statut</span>
+              <span class="detail-value">
+                <span class="order-status" [class]="getStatusColor(selectedOrder()!.status)">
+                  {{ getStatusLabel(selectedOrder()!.status) }}
+                </span>
+              </span>
+            </div>
+            <div class="detail-item full-width">
+              <span class="detail-label">Adresse de livraison</span>
+              <span class="detail-value">{{ selectedOrder()!.shipping_address }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h3>Articles</h3>
+          <div class="detail-items">
+            @for (item of selectedOrder()!.items; track item.id) {
+              <div class="detail-order-item">
+                <div class="item-image">
+                  <img [src]="item.image" [alt]="item.name">
+                </div>
+                <div class="item-details">
+                  <div class="item-name">{{ item.name }}</div>
+                  <div class="item-meta">
+                    <span>Quantité: {{ item.quantity }}</span>
+                    <span>Prix unitaire: ${{ item.price }}</span>
+                  </div>
+                </div>
+                <div class="item-total">${{ (item.price * item.quantity).toFixed(2) }}</div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <div class="detail-total">
+            <span>Total de la commande</span>
+            <strong>${{ selectedOrder()!.total.toFixed(2) }}</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+}

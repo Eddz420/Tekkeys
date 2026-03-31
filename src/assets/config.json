@@ -1,0 +1,38 @@
+{
+  "storeName": "TEKKEYS",
+  "storeTagline": "Élevez Votre Style",
+  "storeDescription": "Découvrez des produits de mode et de style de vie haut de gamme sélectionnés pour l'individu moderne",
+  "currency": "EUR",
+  "currencySymbol": "€",
+  "settings": {
+    "enableDarkMode": true,
+    "defaultTheme": "light",
+    "productsPerPage": 12,
+    "enableWishlist": true,
+    "enableQuickView": true,
+    "enableCompare": true,
+    "showReviews": true,
+    "enableNewsletterPopup": true,
+    "newsletterDelay": 5000
+  },
+  "contact": {
+    "email": "bonjour@tekkeys.fr",
+    "phone": "+33 1 23 45 67 89",
+    "address": "123 Avenue de la Mode, Paris 75001"
+  },
+  "social": {
+    "instagram": "https://instagram.com/tekkeys",
+    "twitter": "https://twitter.com/tekkeys",
+    "facebook": "https://facebook.com/tekkeys",
+    "pinterest": "https://pinterest.com/tekkeys"
+  },
+  "shipping": {
+    "freeShippingThreshold": 100,
+    "standardShippingCost": 9.99,
+    "expressShippingCost": 19.99,
+    "estimatedDeliveryDays": {
+      "standard": "5-7",
+      "express": "2-3"
+    }
+  },
+}

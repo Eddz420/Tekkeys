@@ -1,0 +1,104 @@
+<div class="privacy-page">
+  <div class="container">
+    <div class="content-wrapper">
+      <header class="page-header">
+        <h1 class="page-title">Politique de Confidentialité</h1>
+        <p class="last-updated">Dernière mise à jour : {{ currentYear }}</p>
+      </header>
+
+      <div class="content-section">
+        <h2>1. Introduction</h2>
+        <p>
+          Bienvenue sur {{ configService.config()?.storeName || 'TEKKEYS' }}. Nous respectons votre vie privée et nous nous engageons à protéger vos données personnelles. Cette politique de confidentialité vous informe sur la manière dont nous traitons vos données personnelles lorsque vous visitez notre site web et vous informe de vos droits en matière de confidentialité.
+        </p>
+      </div>
+
+      <div class="content-section">
+        <h2>2. Données que nous collectons</h2>
+        <p>Nous pouvons collecter, utiliser, stocker et transférer différents types de données personnelles vous concernant :</p>
+        <ul>
+          <li><strong>Données d'identité :</strong> nom, prénom, nom d'utilisateur</li>
+          <li><strong>Données de contact :</strong> adresse e-mail, adresse postale, numéro de téléphone</li>
+          <li><strong>Données de transaction :</strong> détails des paiements et des commandes</li>
+          <li><strong>Données techniques :</strong> adresse IP, type de navigateur, fuseau horaire</li>
+          <li><strong>Données d'utilisation :</strong> informations sur la façon dont vous utilisez notre site web</li>
+        </ul>
+      </div>
+
+      <div class="content-section">
+        <h2>3. Comment nous utilisons vos données</h2>
+        <p>Nous utilisons vos données personnelles pour :</p>
+        <ul>
+          <li>Traiter et livrer vos commandes</li>
+          <li>Gérer votre compte et vous fournir un service client</li>
+          <li>Vous envoyer des communications marketing (avec votre consentement)</li>
+          <li>Améliorer notre site web et nos services</li>
+          <li>Détecter et prévenir la fraude</li>
+        </ul>
+      </div>
+
+      <div class="content-section">
+        <h2>4. Partage de vos données</h2>
+        <p>
+          Nous ne vendons jamais vos données personnelles à des tiers. Nous pouvons partager vos données avec :
+        </p>
+        <ul>
+          <li>Des prestataires de services qui nous aident à gérer notre entreprise (paiement, livraison)</li>
+          <li>Des autorités légales si la loi l'exige</li>
+          <li>Des partenaires professionnels avec votre consentement explicite</li>
+        </ul>
+      </div>
+
+      <div class="content-section">
+        <h2>5. Sécurité des données</h2>
+        <p>
+          Nous avons mis en place des mesures de sécurité appropriées pour empêcher que vos données personnelles ne soient accidentellement perdues, utilisées ou consultées de manière non autorisée, modifiées ou divulguées. Toutes les transactions de paiement sont cryptées à l'aide de la technologie SSL.
+        </p>
+      </div>
+
+      <div class="content-section">
+        <h2>6. Vos droits</h2>
+        <p>Conformément au RGPD, vous avez le droit de :</p>
+        <ul>
+          <li>Accéder à vos données personnelles</li>
+          <li>Rectifier vos données personnelles</li>
+          <li>Effacer vos données personnelles</li>
+          <li>Limiter le traitement de vos données</li>
+          <li>Vous opposer au traitement de vos données</li>
+          <li>Demander la portabilité de vos données</li>
+        </ul>
+      </div>
+
+      <div class="content-section">
+        <h2>7. Cookies</h2>
+        <p>
+          Notre site utilise des cookies pour améliorer votre expérience de navigation. Les cookies sont de petits fichiers texte placés sur votre appareil pour collecter des informations standard de journal Internet et des informations sur le comportement des visiteurs.
+        </p>
+      </div>
+
+      <div class="content-section">
+        <h2>8. Conservation des données</h2>
+        <p>
+          Nous ne conserverons vos données personnelles que le temps nécessaire aux fins énoncées dans cette politique de confidentialité. Les données de commande sont conservées pendant 10 ans conformément aux obligations légales.
+        </p>
+      </div>
+
+      <div class="content-section">
+        <h2>9. Nous contacter</h2>
+        <p>
+          Si vous avez des questions concernant cette politique de confidentialité ou si vous souhaitez exercer vos droits, veuillez nous contacter à :
+        </p>
+        <p class="contact-info">
+          <strong>Email :</strong> privacy&#64;{{ configService.config()?.storeName?.toLowerCase() || 'tekkeys' }}.com
+        </p>
+      </div>
+
+      <div class="content-section">
+        <h2>10. Modifications</h2>
+        <p>
+          Nous pouvons mettre à jour cette politique de confidentialité de temps à autre. Toute modification sera publiée sur cette page avec une date de "dernière mise à jour" révisée.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

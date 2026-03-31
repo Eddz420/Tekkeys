@@ -1,0 +1,109 @@
+@if (product(); as p) {
+  <div class="product-detail">
+    <div class="breadcrumb">
+      <a routerLink="/browse">Produits</a>
+      <span class="separator">›</span>
+      <span class="current">{{ p.name }}</span>
+    </div>
+
+    <div class="product-container">
+      <div class="product-images">
+        <div class="main-image">
+          <img [src]="selectedImage()" [alt]="p.name">
+          @if (hasDiscount()) {
+            <div class="discount-badge">-{{ discountPercent() }}%</div>
+          }
+        </div>
+        @if (p.images && p.images.length > 0) {
+          <div class="thumbnail-gallery">
+            <button
+              class="thumbnail"
+              [class.active]="selectedImage() === p.image"
+              (click)="changeImage(p.image)">
+              <img [src]="p.image" [alt]="p.name">
+            </button>
+            @for (img of p.images; track img) {
+              <button
+                class="thumbnail"
+                [class.active]="selectedImage() === img"
+                (click)="changeImage(img)">
+                <img [src]="img" [alt]="p.name">
+              </button>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="product-info">
+        <h1 class="product-name">{{ p.name }}</h1>
+
+        @if (p.rating) {
+          <div class="rating">
+            <div class="stars">
+              @for (star of getStars(p.rating); track $index) {
+                <span class="star" [class.filled]="star">★</span>
+              }
+            </div>
+            <span class="review-count">{{ p.reviewCount }} avis</span>
+          </div>
+        }
+
+        <div class="price-section">
+          @if (p.salePrice) {
+            <div class="prices">
+              <span class="sale-price">{{ p.salePrice | number: '1.2-2' }}€</span>
+              <span class="original-price">{{ p.price | number: '1.2-2' }}€</span>
+            </div>
+          } @else {
+            <span class="current-price">{{ p.price | number: '1.2-2' }}€</span>
+          }
+        </div>
+
+        <p class="description">{{ p.description }}</p>
+
+        <div class="stock-info">
+          @if (inStock()) {
+            <span class="in-stock">✓ En stock ({{ p.stock }} disponibles)</span>
+          } @else {
+            <span class="out-of-stock">Rupture de stock</span>
+          }
+        </div>
+
+        @if (inStock()) {
+          <div class="quantity-selector">
+            <label>Quantité</label>
+            <div class="quantity-controls">
+              <button
+                class="qty-btn"
+                [disabled]="quantity() <= 1"
+                (click)="decrementQuantity()">
+                −
+              </button>
+              <span class="qty-value">{{ quantity() }}</span>
+              <button
+                class="qty-btn"
+                [disabled]="quantity() >= p.stock"
+                (click)="incrementQuantity()">
+                +
+              </button>
+            </div>
+          </div>
+
+          <button
+            class="add-to-cart-btn"
+            (click)="addToCart()">
+            Ajouter au panier - {{ currentPrice() * quantity() | number: '1.2-2' }}€
+          </button>
+        }
+
+        @if (p.tags && p.tags.length > 0) {
+          <div class="tags">
+            @for (tag of p.tags; track tag) {
+              <span class="tag">{{ tag }}</span>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+}

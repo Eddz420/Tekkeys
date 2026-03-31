@@ -1,0 +1,221 @@
+<div class="browse-page">
+  <div class="container">
+    <div class="page-header">
+      <div class="breadcrumb">
+        <a href="/">Accueil</a>
+        <span class="separator">/</span>
+        @if (getSelectedCategory(); as category) {
+          <span>{{ category.name }}</span>
+        } @else {
+          <span>Tous les Produits</span>
+        }
+      </div>
+
+      <h1 class="page-title">
+        @if (getSelectedCategory(); as category) {
+          {{ category.name }}
+        } @else {
+          Tous les Produits
+        }
+      </h1>
+
+      @if (getSelectedCategory(); as category) {
+        @if (category.description) {
+          <p class="page-description">{{ category.description }}</p>
+        }
+      }
+    </div>
+
+    <div class="browse-layout">
+      <aside class="filters-sidebar" [class.show]="showFilters">
+        <div class="filters-header">
+          <h3>Filtres</h3>
+          <button class="close-filters" (click)="toggleFilters()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="filter-section">
+          <h4 class="filter-title">Catégories</h4>
+          <div class="filter-options">
+            <button
+              class="filter-option"
+              [class.active]="!getSelectedCategory()"
+              (click)="selectCategory(null)">
+              Toutes les Catégories
+            </button>
+            @for (category of categoriesService.getTopLevelCategories(); track category.id) {
+              <button
+                class="filter-option"
+                [class.active]="getSelectedCategory()?.id === category.id"
+                (click)="selectCategory(category.id)">
+                {{ category.name }}
+                @if (category.productCount) {
+                  <span class="count">({{ category.productCount }})</span>
+                }
+              </button>
+            }
+          </div>
+        </div>
+
+        @if (getSubcategories().length > 0) {
+          <div class="filter-section">
+            <h4 class="filter-title">Sous-catégories</h4>
+            <div class="filter-options">
+              @for (subcategory of getSubcategories(); track subcategory.id) {
+                <label class="checkbox-option">
+                  <input
+                    type="checkbox"
+                    [checked]="selectedSubcategories.has(subcategory.id)"
+                    (change)="toggleSubcategory(subcategory.id)">
+                  <span>{{ subcategory.name }}</span>
+                </label>
+              }
+            </div>
+          </div>
+        }
+
+        <div class="filter-section">
+          <h4 class="filter-title">Trier par</h4>
+          <div class="filter-options">
+            <button
+              class="filter-option"
+              [class.active]="productsService.getCurrentFilters().sortBy === 'name'"
+              (click)="setSortBy('name')">
+              Nom
+            </button>
+            <button
+              class="filter-option"
+              [class.active]="productsService.getCurrentFilters().sortBy === 'price-asc'"
+              (click)="setSortBy('price-asc')">
+              Prix: Croissant
+            </button>
+            <button
+              class="filter-option"
+              [class.active]="productsService.getCurrentFilters().sortBy === 'price-desc'"
+              (click)="setSortBy('price-desc')">
+              Prix: Décroissant
+            </button>
+            <button
+              class="filter-option"
+              [class.active]="productsService.getCurrentFilters().sortBy === 'rating'"
+              (click)="setSortBy('rating')">
+              Meilleures Notes
+            </button>
+          </div>
+        </div>
+
+        <button class="clear-filters-btn" (click)="clearFilters()">
+          Effacer les Filtres
+        </button>
+      </aside>
+
+      <div class="products-content">
+        <div class="products-toolbar">
+          <button class="mobile-filter-btn" (click)="toggleFilters()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            Filtres
+          </button>
+
+          <div class="products-count">
+            <span>{{ productsService.products().length }} produits</span>
+          </div>
+        </div>
+
+        @if (productsService.products().length === 0) {
+          <div class="empty-state">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+              <path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <h3>Aucun produit trouvé</h3>
+            <p>Essayez de modifier vos filtres</p>
+            <button class="btn-primary" (click)="clearFilters()">
+              Réinitialiser les Filtres
+            </button>
+          </div>
+        } @else {
+          <div class="products-grid">
+            @for (product of productsService.products(); track product.id) {
+              <div class="product-card">
+                @if (product.salePrice) {
+                  <div class="product-badge sale-badge">
+                    -{{ getDiscountPercentage(product.price, product.salePrice) }}%
+                  </div>
+                }
+                @if (product.stock < 10) {
+                  <div class="product-badge stock-badge">
+                    Stock limité
+                  </div>
+                }
+
+                <a [routerLink]="['/product', product.id]" class="product-image">
+                  <img [src]="product.image" [alt]="product.name">
+                </a>
+
+                <div class="product-info">
+                  <a [routerLink]="['/product', product.id]" class="product-name-link">
+                    <h3 class="product-name">{{ product.name }}</h3>
+                  </a>
+                  <p class="product-description">{{ product.description }}</p>
+
+                  @if (product.rating) {
+                    <div class="product-rating">
+                      <div class="stars">
+                        @for (star of [1,2,3,4,5]; track star) {
+                          @if (star <= (product.rating || 0)) {
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                            </svg>
+                          } @else {
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" stroke-width="2"/>
+                            </svg>
+                          }
+                        }
+                      </div>
+                      <span class="rating-text">{{ product.rating }} ({{ product.reviewCount }})</span>
+                    </div>
+                  }
+
+                  <div class="product-footer">
+                    <div class="product-price">
+                      @if (product.salePrice) {
+                        <span class="price-original">{{ product.price }}{{ configService.config()?.currencySymbol }}</span>
+                        <span class="price-sale">{{ product.salePrice }}{{ configService.config()?.currencySymbol }}</span>
+                      } @else {
+                        <span class="price-current">{{ product.price }}{{ configService.config()?.currencySymbol }}</span>
+                      }
+                    </div>
+
+                    <button
+                      class="add-to-cart-btn"
+                      (click)="addToCart(product.id, $event)"
+                      [disabled]="product.stock === 0">
+                      @if (product.stock === 0) {
+                        Rupture de stock
+                      } @else {
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                          <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Ajouter
+                      }
+                    </button>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>
+
+@if (showFilters) {
+  <div class="filters-overlay" (click)="toggleFilters()"></div>
+}

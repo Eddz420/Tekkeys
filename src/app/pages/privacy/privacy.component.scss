@@ -1,0 +1,134 @@
+@use '../../../styles/variables' as *;
+@use '../../../styles/mixins' as *;
+
+.privacy-page {
+  min-height: 100vh;
+  padding: 120px 0 80px;
+  background: var(--color-background);
+}
+
+.container {
+  @include container;
+  max-width: 900px;
+}
+
+.content-wrapper {
+  background: var(--color-surface);
+  border-radius: $border-radius-xl;
+  padding: $spacing-4xl;
+  box-shadow: var(--shadow-md);
+
+  @media (max-width: $breakpoint-md) {
+    padding: $spacing-2xl;
+    border-radius: $border-radius-lg;
+  }
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: $spacing-4xl;
+  padding-bottom: $spacing-2xl;
+  border-bottom: 2px solid var(--color-border);
+}
+
+.page-title {
+  font-size: $font-size-4xl;
+  font-weight: $font-weight-bold;
+  color: var(--color-text-primary);
+  margin-bottom: $spacing-md;
+  @include gradient-text;
+
+  @media (max-width: $breakpoint-md) {
+    font-size: $font-size-3xl;
+  }
+}
+
+.last-updated {
+  font-size: $font-size-sm;
+  color: var(--color-text-tertiary);
+  font-weight: $font-weight-medium;
+}
+
+.content-section {
+  margin-bottom: $spacing-3xl;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  h2 {
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-bold;
+    color: var(--color-text-primary);
+    margin-bottom: $spacing-lg;
+    position: relative;
+    padding-left: $spacing-md;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: var(--gradient-primary);
+      border-radius: $border-radius-sm;
+    }
+
+    @media (max-width: $breakpoint-md) {
+      font-size: $font-size-xl;
+    }
+  }
+
+  p {
+    font-size: $font-size-base;
+    line-height: 1.8;
+    color: var(--color-text-secondary);
+    margin-bottom: $spacing-lg;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  ul {
+    list-style: none;
+    padding-left: 0;
+    margin: $spacing-lg 0;
+
+    li {
+      font-size: $font-size-base;
+      line-height: 1.8;
+      color: var(--color-text-secondary);
+      margin-bottom: $spacing-md;
+      padding-left: $spacing-xl;
+      position: relative;
+
+      &::before {
+        content: '•';
+        position: absolute;
+        left: $spacing-md;
+        color: var(--color-primary);
+        font-weight: $font-weight-bold;
+        font-size: $font-size-lg;
+      }
+
+      strong {
+        color: var(--color-text-primary);
+        font-weight: $font-weight-semibold;
+      }
+    }
+  }
+}
+
+.contact-info {
+  background: var(--color-background);
+  padding: $spacing-lg;
+  border-radius: $border-radius-md;
+  border-left: 4px solid var(--color-primary);
+
+  strong {
+    color: var(--color-text-primary);
+    font-weight: $font-weight-semibold;
+  }
+}

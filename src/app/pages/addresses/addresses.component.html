@@ -1,0 +1,108 @@
+<section class="addresses-page">
+  <div class="container">
+    <div class="page-header">
+      <h1 class="page-title">Mes Adresses</h1>
+      <p class="page-subtitle">Gérez vos adresses de livraison</p>
+    </div>
+
+    <div class="addresses-container">
+      @if (!showAddressForm()) {
+        <div class="addresses-header">
+          <h2>Adresses Enregistrées</h2>
+          <button class="btn-add-address" (click)="toggleAddressForm()">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M10 5v10M5 10h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            Ajouter une Adresse
+          </button>
+        </div>
+
+        @if (addressService.loading()) {
+          <div class="loading-state">
+            <div class="spinner-large"></div>
+            <p>Chargement des adresses...</p>
+          </div>
+        } @else if (addressService.addresses().length === 0) {
+          <div class="empty-addresses">
+            <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+              <rect x="20" y="45" width="80" height="50" rx="4" stroke="currentColor" stroke-width="2.5"/>
+              <rect x="35" y="35" width="50" height="20" rx="2" stroke="currentColor" stroke-width="2.5"/>
+              <circle cx="35" cy="95" r="8" stroke="currentColor" stroke-width="2.5" fill="none"/>
+              <circle cx="85" cy="95" r="8" stroke="currentColor" stroke-width="2.5" fill="none"/>
+              <path d="M50 60h20M50 70h15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M100 65l10 10v10h-10" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
+              <line x1="30" y1="45" x2="30" y2="87" stroke="currentColor" stroke-width="2.5"/>
+            </svg>
+            <h3>Aucune adresse enregistrée</h3>
+            <p>Ajoutez votre première adresse de livraison pour faciliter vos commandes</p>
+            <button class="btn-primary" (click)="toggleAddressForm()">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M10 5v10M5 10h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              Ajouter une Adresse
+            </button>
+          </div>
+        } @else {
+          <div class="addresses-grid">
+            @for (address of addressService.addresses(); track address.id) {
+              <div class="address-card">
+                <div class="address-header">
+                  <div class="address-label">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                      <path d="M10 10a2 2 0 100-4 2 2 0 000 4z" stroke="currentColor" stroke-width="1.5"/>
+                      <path d="M10 2c-3.9 0-7 3.1-7 7 0 5.25 7 11 7 11s7-5.75 7-11c0-3.9-3.1-7-7-7z" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                    <strong>{{ address.label }}</strong>
+                  </div>
+                  @if (address.is_default) {
+                    <span class="default-badge">Par défaut</span>
+                  }
+                </div>
+
+                <div class="address-details">
+                  <p class="address-name">{{ address.full_name }}</p>
+                  <p>{{ address.street_address }}</p>
+                  <p>{{ address.postal_code }} {{ address.city }}</p>
+                  <p>{{ address.state }}, {{ address.country }}</p>
+                  <p class="address-phone">{{ address.phone }}</p>
+                </div>
+
+                <div class="address-actions">
+                  @if (!address.is_default) {
+                    <button class="action-btn" (click)="setDefaultAddress(address.id!)">
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M8 2l2 5h5l-4 3 1.5 5L8 12l-4.5 3L5 10 1 7h5l2-5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                      </svg>
+                      Définir par défaut
+                    </button>
+                  }
+                  <button class="action-btn delete" (click)="deleteAddress(address.id!)">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <path d="M2 4h12M5 4V3a1 1 0 011-1h4a1 1 0 011 1v1M13 4v9a1 1 0 01-1 1H4a1 1 0 01-1-1V4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    Supprimer
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      } @else {
+        <div class="address-form-container">
+          <div class="form-header">
+            <h2>Nouvelle Adresse</h2>
+            <button class="btn-close" (click)="toggleAddressForm()">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </button>
+          </div>
+          <app-address-form
+            (save)="saveAddress($event)"
+            (cancel)="cancelAddressForm()"
+          ></app-address-form>
+        </div>
+      }
+    </div>
+  </div>
+</section>

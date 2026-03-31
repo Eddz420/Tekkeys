@@ -1,0 +1,259 @@
+<section class="cart-page">
+  <div class="container">
+    <div class="page-header">
+      @if (currentStep() === 'cart') {
+        <h1 class="page-title">Panier d'Achat</h1>
+        <p class="page-subtitle">{{ cartService.itemCount() }} article(s) dans votre panier</p>
+      } @else {
+        <div class="breadcrumb">
+          <button class="breadcrumb-link" (click)="backToCart()">Panier</button>
+          <span class="breadcrumb-separator">/</span>
+          <span class="breadcrumb-current">Livraison</span>
+        </div>
+        <h1 class="page-title">Adresse de Livraison</h1>
+        <p class="page-subtitle">Sélectionnez ou ajoutez une adresse de livraison</p>
+      }
+    </div>
+
+    @if (cartService.items().length === 0) {
+      <div class="empty-cart">
+        <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+          <circle cx="60" cy="60" r="58" stroke="currentColor" stroke-width="2" opacity="0.2"/>
+          <path d="M40 45h40l-5 30H45l-5-30z" stroke="currentColor" stroke-width="2" fill="none"/>
+          <circle cx="50" cy="85" r="4" fill="currentColor"/>
+          <circle cx="70" cy="85" r="4" fill="currentColor"/>
+          <line x1="35" y1="35" x2="45" y2="45" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        <h2>Votre panier est vide</h2>
+        <p>Ajoutez des articles pour commencer vos achats</p>
+        <button class="btn-primary" (click)="continueShopping()">
+          Continuer vos Achats
+        </button>
+      </div>
+    } @else if (currentStep() === 'cart') {
+      <div class="cart-layout">
+        <div class="cart-items">
+          <div class="cart-header">
+            <h2>Articles</h2>
+          </div>
+
+          @for (item of cartService.items(); track item.id) {
+            <div class="cart-item">
+              <div class="item-image">
+                <img [src]="item.image" [alt]="item.name">
+              </div>
+
+              <div class="item-details">
+                <h3 class="item-name">{{ item.name }}</h3>
+                <p class="item-category">{{ item.category }}</p>
+                <p class="item-price-mobile">${{ item.price }}</p>
+              </div>
+
+              <div class="item-quantity">
+                <button
+                  class="qty-btn"
+                  (click)="updateQuantity(item.id, -1)"
+                  [disabled]="item.quantity <= 1"
+                  aria-label="Diminuer la quantité"
+                >
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                </button>
+                <span class="qty-value">{{ item.quantity }}</span>
+                <button
+                  class="qty-btn"
+                  (click)="updateQuantity(item.id, 1)"
+                  aria-label="Augmenter la quantité"
+                >
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                </button>
+              </div>
+
+              <div class="item-price">
+                ${{ item.price }}
+              </div>
+
+              <div class="item-total">
+                ${{ (item.price * item.quantity).toFixed(2) }}
+              </div>
+
+              <button
+                class="item-remove"
+                (click)="removeItem(item.id)"
+                aria-label="Supprimer l'article"
+              >
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M15 5L5 15M5 5l10 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </button>
+            </div>
+          }
+        </div>
+
+        <div class="cart-summary">
+          <div class="summary-card">
+            <h2 class="summary-title">Résumé de la Commande</h2>
+
+            <div class="summary-row">
+              <span class="summary-label">Sous-total</span>
+              <span class="summary-value">${{ cartService.subtotal().toFixed(2) }}</span>
+            </div>
+
+            <div class="summary-row">
+              <span class="summary-label">Livraison</span>
+              <span class="summary-value">${{ cartService.shipping().toFixed(2) }}</span>
+            </div>
+
+            <div class="summary-row">
+              <span class="summary-label">Taxes (10%)</span>
+              <span class="summary-value">${{ cartService.tax().toFixed(2) }}</span>
+            </div>
+
+            <div class="summary-divider"></div>
+
+            <div class="summary-row summary-total">
+              <span class="summary-label">Total</span>
+              <span class="summary-value">${{ cartService.total().toFixed(2) }}</span>
+            </div>
+
+            <button class="btn-checkout" (click)="proceedToDelivery()">
+              Continuer vers la Livraison
+            </button>
+
+            <button class="btn-continue" (click)="continueShopping()">
+              Continuer vos Achats
+            </button>
+
+            <div class="security-badges">
+              <div class="badge-item">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M10 2l6 3v5c0 4-6 8-6 8s-6-4-6-8V5l6-3z" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                  <path d="M7 10l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Paiement Sécurisé</span>
+              </div>
+              <div class="badge-item">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M18 8V6a2 2 0 00-2-2H4a2 2 0 00-2 2v2m16 0v6a2 2 0 01-2 2H4a2 2 0 01-2-2V8m16 0H2" stroke="currentColor" stroke-width="1.5"/>
+                </svg>
+                <span>Livraison Rapide</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    } @else if (currentStep() === 'delivery') {
+      <div class="delivery-step">
+        @if (!showAddressForm()) {
+          <div class="addresses-container">
+            <div class="addresses-header">
+              <h2>Mes Adresses</h2>
+              <button class="btn-add-address" (click)="toggleAddressForm()">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M10 5v10M5 10h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                Ajouter une Adresse
+              </button>
+            </div>
+
+            @if (addressService.loading()) {
+              <div class="loading-state">
+                <p>Chargement des adresses...</p>
+              </div>
+            } @else if (addressService.addresses().length === 0) {
+              <div class="empty-addresses">
+                <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+                  <rect x="20" y="45" width="80" height="50" rx="4" stroke="currentColor" stroke-width="2.5"/>
+                  <rect x="35" y="35" width="50" height="20" rx="2" stroke="currentColor" stroke-width="2.5"/>
+                  <circle cx="35" cy="95" r="8" stroke="currentColor" stroke-width="2.5" fill="none"/>
+                  <circle cx="85" cy="95" r="8" stroke="currentColor" stroke-width="2.5" fill="none"/>
+                  <path d="M50 60h20M50 70h15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M100 65l10 10v10h-10" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
+                  <line x1="30" y1="45" x2="30" y2="87" stroke="currentColor" stroke-width="2.5"/>
+                </svg>
+                <h3>Aucune adresse enregistrée</h3>
+                <p>Ajoutez votre première adresse de livraison</p>
+              </div>
+            } @else {
+              <div class="addresses-grid">
+                @for (address of addressService.addresses(); track address.id) {
+                  <div class="address-card" [class.selected]="selectedAddress()?.id === address.id" (click)="selectAddress(address)">
+                    <div class="address-header">
+                      <div class="address-label">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                          <path d="M10 10a2 2 0 100-4 2 2 0 000 4z" stroke="currentColor" stroke-width="1.5"/>
+                          <path d="M10 2c-3.9 0-7 3.1-7 7 0 5.25 7 11 7 11s7-5.75 7-11c0-3.9-3.1-7-7-7z" stroke="currentColor" stroke-width="1.5"/>
+                        </svg>
+                        <strong>{{ address.label }}</strong>
+                      </div>
+                      @if (address.is_default) {
+                        <span class="default-badge">Par défaut</span>
+                      }
+                    </div>
+
+                    <div class="address-details">
+                      <p class="address-name">{{ address.full_name }}</p>
+                      <p>{{ address.street_address }}</p>
+                      <p>{{ address.postal_code }} {{ address.city }}</p>
+                      <p>{{ address.state }}, {{ address.country }}</p>
+                      <p class="address-phone">{{ address.phone }}</p>
+                    </div>
+
+                    <div class="address-actions">
+                      @if (!address.is_default) {
+                        <button class="action-btn" (click)="setDefaultAddress(address.id!); $event.stopPropagation()">
+                          Définir par défaut
+                        </button>
+                      }
+                      <button class="action-btn delete" (click)="deleteAddress(address.id!); $event.stopPropagation()">
+                        Supprimer
+                      </button>
+                    </div>
+
+                    @if (selectedAddress()?.id === address.id) {
+                      <div class="selected-indicator">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                          <circle cx="12" cy="12" r="10" fill="currentColor"/>
+                          <path d="M8 12l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            }
+
+            @if (addressService.addresses().length > 0) {
+              <div class="delivery-actions">
+                <button class="btn btn-secondary" (click)="backToCart()">
+                  Retour au Panier
+                </button>
+                <button class="btn btn-primary" (click)="proceedToPayment()" [disabled]="!selectedAddress()">
+                  Continuer vers le Paiement
+                </button>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="address-form-container">
+            <div class="form-header">
+              <h2>Nouvelle Adresse</h2>
+              <button class="btn-close" (click)="toggleAddressForm()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </button>
+            </div>
+            <app-address-form
+              (save)="saveAddress($event)"
+              (cancel)="cancelAddressForm()"
+            ></app-address-form>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</section>

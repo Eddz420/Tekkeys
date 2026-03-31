@@ -1,0 +1,68 @@
+  <section class="categories">
+    <div class="categories-background">
+      <div class="gradient-orb orb-1"></div>
+      <div class="gradient-orb orb-2"></div>
+      <div class="gradient-orb orb-3"></div>
+    </div>
+    <div class="container">
+      <div class="section-header">
+        <div class="section-badge">Explorer les catégories</div>
+        <h2 class="section-title">Tout pour votre setup</h2>
+        <p class="section-description">
+          Tout le nécessaire pour votre PC, du composant aux accessoires
+        </p>
+      </div>
+
+      <div class="categories-grid">
+        @for (category of categories().slice(0, 4)  ;track category.id) {
+          <a
+            #card
+            [href]="'/browse?category=' + category.id"
+            class="category-card"
+            [class.featured]="category.id === 1"
+            (mousemove)="onMouseMove($event, card)"
+            (mouseleave)="onMouseLeave(card)">
+            <div class="category-card-inner">
+              <div class="category-image">
+                <img [src]="category.image || 'https://images.pexels.com/photos/2582937/pexels-photo-2582937.jpeg?auto=compress&cs=tinysrgb&w=800'" [alt]="category.name">
+                <div class="category-overlay"></div>
+              </div>
+              <div class="category-content">
+                <h3 class="category-name">{{ category.name }}</h3>
+                <p class="category-description">{{ category.description || 'Découvrez notre collection' }}</p>
+                <div class="category-meta">
+                  @if (category.productCount) {
+                    <span class="product-count">{{ category.productCount }} Produits</span>
+                  }
+                  <div class="category-arrow">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                      <path d="M5 12h14m-6-6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </a>
+        }
+
+        <a href="/browse" class="category-card browse-more-card">
+          <div class="category-card-inner">
+            <div class="browse-more-content">
+              <div class="browse-more-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+                  <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <h3 class="browse-more-title">Parcourir Tout</h3>
+              <p class="browse-more-description">Voir toutes les catégories disponibles</p>
+              <div class="browse-more-arrow">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <path d="M5 12h14m-6-6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>

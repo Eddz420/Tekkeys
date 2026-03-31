@@ -1,0 +1,123 @@
+<div class="terms-page">
+  <div class="container">
+    <div class="content-wrapper">
+      <header class="page-header">
+        <h1 class="page-title">Conditions d'Utilisation</h1>
+        <p class="last-updated">Dernière mise à jour : {{ currentYear }}</p>
+      </header>
+
+      <div class="content-section">
+        <h2>1. Acceptation des conditions</h2>
+        <p>
+          En accédant et en utilisant {{ configService.config()?.storeName || 'TEKKEYS' }}, vous acceptez d'être lié par ces conditions d'utilisation et toutes les lois et réglementations applicables. Si vous n'acceptez pas l'une de ces conditions, vous ne devez pas utiliser ce site.
+        </p>
+      </div>
+
+      <div class="content-section">
+        <h2>2. Utilisation du site</h2>
+        <p>Vous vous engagez à utiliser notre site uniquement à des fins légales et de manière à ne pas porter atteinte aux droits, ou restreindre ou inhiber l'utilisation et la jouissance de ce site par un tiers.</p>
+        <ul>
+          <li>Ne pas utiliser le site de manière frauduleuse ou malveillante</li>
+          <li>Ne pas tenter d'accéder de manière non autorisée au site</li>
+          <li>Ne pas introduire de virus, chevaux de Troie ou autres contenus malveillants</li>
+          <li>Ne pas collecter ou récolter des informations sur d'autres utilisateurs</li>
+        </ul>
+      </div>
+
+      <div class="content-section">
+        <h2>3. Compte utilisateur</h2>
+        <p>Pour effectuer des achats, vous devez créer un compte. Vous êtes responsable de :</p>
+        <ul>
+          <li>Maintenir la confidentialité de vos informations de compte</li>
+          <li>Toutes les activités qui se produisent sous votre compte</li>
+          <li>Nous informer immédiatement de toute utilisation non autorisée</li>
+          <li>Fournir des informations exactes et à jour</li>
+        </ul>
+      </div>
+
+      <div class="content-section">
+        <h2>4. Commandes et paiements</h2>
+        <p>
+          Lorsque vous passez une commande sur notre site, vous faites une offre d'achat des produits sélectionnés. Nous nous réservons le droit d'accepter ou de refuser toute commande.
+        </p>
+        <ul>
+          <li>Les prix sont indiqués en euros TTC</li>
+          <li>Nous nous réservons le droit de modifier les prix à tout moment</li>
+          <li>Le paiement doit être effectué au moment de la commande</li>
+          <li>Nous acceptons les principales cartes bancaires et PayPal</li>
+        </ul>
+      </div>
+
+      <div class="content-section">
+        <h2>5. Livraison</h2>
+        <p>
+          Nous nous efforçons de livrer vos produits dans les délais indiqués, mais nous ne pouvons garantir des dates de livraison précises. Les délais de livraison sont donnés à titre indicatif.
+        </p>
+        <ul>
+          <li>La livraison standard prend entre 3 et 7 jours ouvrables</li>
+          <li>La livraison express est disponible pour un coût supplémentaire</li>
+          <li>Les frais de livraison sont calculés lors du paiement</li>
+          <li>Nous livrons en France métropolitaine et dans l'UE</li>
+        </ul>
+      </div>
+
+      <div class="content-section">
+        <h2>6. Retours et remboursements</h2>
+        <p>
+          Conformément à la législation sur la vente à distance, vous disposez d'un délai de 14 jours à compter de la réception de votre commande pour exercer votre droit de rétractation.
+        </p>
+        <ul>
+          <li>Les produits doivent être retournés dans leur état d'origine</li>
+          <li>Les frais de retour sont à la charge du client</li>
+          <li>Le remboursement sera effectué dans les 14 jours suivant la réception du retour</li>
+          <li>Certains produits personnalisés ne peuvent pas être retournés</li>
+        </ul>
+      </div>
+
+      <div class="content-section">
+        <h2>7. Propriété intellectuelle</h2>
+        <p>
+          Tout le contenu de ce site, y compris les textes, graphiques, logos, icônes, images, clips audio, téléchargements numériques et compilations de données, est la propriété de {{ configService.config()?.storeName || 'TEKKEYS' }} ou de ses fournisseurs de contenu et est protégé par les lois sur la propriété intellectuelle.
+        </p>
+      </div>
+
+      <div class="content-section">
+        <h2>8. Limitation de responsabilité</h2>
+        <p>
+          Dans toute la mesure permise par la loi, {{ configService.config()?.storeName || 'TEKKEYS' }} ne sera pas responsable des dommages directs, indirects, accessoires, spéciaux ou consécutifs résultant de l'utilisation ou de l'incapacité d'utiliser notre site.
+        </p>
+      </div>
+
+      <div class="content-section">
+        <h2>9. Garanties des produits</h2>
+        <p>
+          Tous nos produits sont couverts par une garantie légale de conformité de 2 ans à compter de la date de livraison. Les défauts de fabrication sont couverts par la garantie du fabricant selon les conditions spécifiques à chaque produit.
+        </p>
+      </div>
+
+      <div class="content-section">
+        <h2>10. Modifications des conditions</h2>
+        <p>
+          Nous nous réservons le droit de modifier ces conditions d'utilisation à tout moment. Les modifications prennent effet dès leur publication sur le site. Votre utilisation continue du site après toute modification constitue votre acceptation des nouvelles conditions.
+        </p>
+      </div>
+
+      <div class="content-section">
+        <h2>11. Droit applicable</h2>
+        <p>
+          Ces conditions d'utilisation sont régies par le droit français. Tout litige relatif à l'utilisation de ce site sera soumis à la compétence exclusive des tribunaux français.
+        </p>
+      </div>
+
+      <div class="content-section">
+        <h2>12. Contact</h2>
+        <p>
+          Pour toute question concernant ces conditions d'utilisation, veuillez nous contacter à :
+        </p>
+        <p class="contact-info">
+          <strong>Email :</strong> support&#64;{{ configService.config()?.storeName?.toLowerCase() || 'tekkeys' }}.com
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
