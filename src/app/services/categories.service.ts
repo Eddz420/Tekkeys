@@ -1,87 +1,40 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, inject, signal, computed } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, of, BehaviorSubject } from 'rxjs';
+import { catchError, map, switchMap, tap } from 'rxjs/operators';
+import { AppConfig, APP_CONFIG } from './config';
+import { AuthenticationOdooService } from './auth.service';
 
 export interface Category {
   id: number;
-  name: string;
-  active: boolean;
-  parentId?: number;
-  description?: string;
-  image?: string;
-  productCount?: number;
+  display_name?:string;
+  image?:string;
+  name?:string;
+  parent_id:any;
+  productCount?: number; // Optionnel, à remplir si l'API le fournit
+  description?: string; // Optionnel, à remplir si l'API le fournit
 }
 
-const CATEGORIES: Category[] = [
-  {
-    id: 1,
-    name: "Computers",
-    active: true,
-    description: "Complete desktop and laptop systems",
-    image: "https://images.pexels.com/photos/7974/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=800",
-    productCount: 487
-  },
 
-  { id: 2, name: "Laptops", active: true, parentId: 1 },
-  { id: 3, name: "Desktop PCs", active: true, parentId: 1 },
-  { id: 4, name: "All-in-One PCs", active: true, parentId: 1 },
-
-  {
-    id: 5,
-    name: "Computer Components",
-    active: true,
-    description: "Build your dream PC",
-    image: "https://images.pexels.com/photos/2582937/pexels-photo-2582937.jpeg?auto=compress&cs=tinysrgb&w=800",
-    productCount: 1243
-  },
-  { id: 6, name: "Processors (CPU)", active: true },
-  { id: 7, name: "Graphics Cards (GPU)", active: true },
-  { id: 8, name: "Motherboards", active: true, parentId: 5 },
-  { id: 9, name: "RAM (Memory)", active: true, parentId: 5 },
-  { id: 10, name: "Storage (SSD / HDD)", active: true, parentId: 5 },
-  { id: 11, name: "Power Supplies", active: true, parentId: 5 },
-  { id: 12, name: "PC Cases", active: true, parentId: 5 },
-  { id: 13, name: "Cooling Systems", active: true, parentId: 5 },
-
-  {
-    id: 14,
-    name: "Peripherals",
-    active: true,
-    description: "Enhance your setup",
-    image: "https://images.pexels.com/photos/2115257/pexels-photo-2115257.jpeg?auto=compress&cs=tinysrgb&w=800",
-    productCount: 892
-  },
-  { id: 15, name: "Monitors", active: true, parentId: 14 },
-  { id: 16, name: "Keyboards", active: true, parentId: 14 },
-  { id: 17, name: "Mice", active: true, parentId: 14 },
-  { id: 18, name: "Headsets", active: true, parentId: 14 },
-  { id: 19, name: "Webcams", active: true, parentId: 14 },
-  { id: 20, name: "Speakers", active: true, parentId: 14 },
-
-  {
-    id: 21,
-    name: "Networking",
-    active: true,
-    description: "Stay connected",
-    image: "https://images.pexels.com/photos/159304/network-cable-ethernet-computer-159304.jpeg?auto=compress&cs=tinysrgb&w=800",
-    productCount: 324
-  },
-  { id: 22, name: "Routers", active: true, parentId: 21 },
-  { id: 23, name: "Switches", active: true, parentId: 21 },
-  { id: 24, name: "Network Cards", active: true, parentId: 21 },
-  { id: 25, name: "WiFi Adapters", active: true, parentId: 21 },
-  { id: 26, name: "Modems", active: true, parentId: 21 },
-  { id: 27, name: "Ethernet Cables", active: true, parentId: 21 },
-];
+const CATEGORIES: Category[] = []
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CategoriesService {
+  private http = inject(HttpClient);
+  private config = inject<AppConfig>(APP_CONFIG);
+  private url = `${this.config.apiEndpoint}/api/call_kw/product.category`;
+
+  readonly categoriesSubject = new BehaviorSubject<Category[]>([]);
+  public readonly categories = this.categoriesSubject.asObservable();
+
+  // Signal-based API for backward compatibility with components
+  public categoriesSignal = signal<Category[]>(CATEGORIES);
   visibleCategoryCount = signal<number>(5);
 
-  categories = signal<Category[]>(CATEGORIES);
-
   topLevelCategories = computed(() =>
-    this.categories().filter(cat => !cat.parentId && cat.active)
+    this.categoriesSignal().filter(cat => !cat.parent_id)
   );
 
   visibleCategories = computed(() =>
@@ -92,23 +45,100 @@ export class CategoriesService {
     this.topLevelCategories().slice(this.visibleCategoryCount())
   );
 
-  hasMoreCategories = computed(() =>
-    this.moreCategories().length > 0
-  );
+  hasMoreCategories = computed(() => this.moreCategories().length > 0);
 
-  setVisibleCount(count: number): void {
+  constructor() {
+    this.getAllActivated().subscribe((response: Category[]) => {
+      
+      if (response) {
+
+        this.categoriesSubject.next(response);
+        
+        this.categoriesSignal.set(response);
+        console.log(this.categoriesSignal().filter(cat => true));
+      }
+    });
+  }
+
+  private mapOdooCategory(record: any): Category {
+    return {
+      id: record.id,
+      name: record.name,
+      parent_id: record.parent_id ? record.parent_id : undefined,
+      image: record.image_1920 ? `data:image/png;base64,${record.image_1920}` : undefined,
+      display_name: record.display_name,};
+  }
+
+  public getAllActivated(): Observable<Category[]> {
+    this.categoriesSubject.next([]);
+
+    const url = `${this.url}/web_search_read`;
+    
+    const payload = {
+
+      params: {
+        model: 'product.category',
+        method: 'web_search_read',
+        args: [],
+        kwargs: {
+          domain: [],
+          specification: {
+
+            display_name: {},
+            image: {},
+            name: {},
+            parent_id: {},
+          }
+          
+        },
+      },
+    };
+
+    return this.http.post<{ result: { records: any[] } }>(url, payload, { withCredentials: true }).pipe(
+      map((response: any) => {
+        console.log(response);
+        
+        if (response?.result?.records) {
+          return response.result.records.map((record: any) => this.mapOdooCategory(record));
+        } else {
+          return CATEGORIES;
+        }
+      }),
+      catchError(() => {
+        return of(CATEGORIES);
+      })
+    );
+  }
+
+  public getPopular(): Observable<Category[]> {
+    const url = `${this.url}/popular`;
+    return this.http.get<Category[]>(url).pipe(
+      catchError(() => of(CATEGORIES))
+    );
+  }
+
+  public getByConfigurationId(configurationId: number): Observable<Category> {
+    const url = `${this.url}/configuration-category/${configurationId}`;
+    return this.http.get<Category>(url).pipe(
+      catchError(() => of(CATEGORIES[0]))
+    );
+  }
+
+  public getAllCategories(): Category[] {
+    return this.categoriesSubject.value;
+  }
+
+  public getTopLevelCategories(): Category[] {
+    return this.getAllCategories().filter(cat => !cat.parent_id);
+  }
+
+  public getCategoryChildren(parentId: number): Category[] {
+    return this.getAllCategories().filter(cat => cat.parent_id === parentId);
+  }
+
+  public setVisibleCount(count: number): void {
     this.visibleCategoryCount.set(count);
   }
 
-  getAllCategories(): Category[] {
-    return this.categories();
-  }
 
-  getTopLevelCategories(): Category[] {
-    return this.topLevelCategories();
-  }
-
-  getCategoryChildren(parentId: number): Category[] {
-    return this.categories().filter(cat => cat.parentId === parentId && cat.active);
-  }
 }

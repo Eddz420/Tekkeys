@@ -1,4 +1,4 @@
-import { Component, inject, signal, HostListener, ElementRef, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, inject, signal, HostListener, ElementRef, AfterViewInit, OnDestroy, OnInit, effect, Query } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ThemeService } from '../../services/theme.service';
@@ -7,6 +7,10 @@ import { CategoriesService } from '../../services/categories.service';
 import { CartService } from '../../services/cart.service';
 import { LoginModalComponent } from '../login-modal/login-modal.component';
 import { SnackbarService } from '../../services/snackbar.service';
+import { AuthenticationOdooService } from '../../services/auth.service';
+import { debounce, debounceTime, of, Subscription, switchMap } from 'rxjs';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { ProductsService } from '../../services/products.service';
 
 @Component({
   selector: 'app-header',
@@ -15,15 +19,18 @@ import { SnackbarService } from '../../services/snackbar.service';
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss'
 })
-export class HeaderComponent implements  OnDestroy {
+export class HeaderComponent implements AfterViewInit, OnInit, OnDestroy {
   themeService = inject(ThemeService);
   configService = inject(ConfigService);
   categoriesService = inject(CategoriesService);
+  productService = inject(ProductsService);
   cartService = inject(CartService);
   elementRef = inject(ElementRef);
   router = inject(Router);
   snackbarService = inject(SnackbarService);
-
+  private authService = inject(AuthenticationOdooService);
+  private authSubscription?: Subscription;
+  
   isMenuOpen = signal(false);
   isScrolled = signal(false);
   isCategoriesMenuOpen = signal(false);
@@ -36,30 +43,128 @@ export class HeaderComponent implements  OnDestroy {
   visibleCategories = this.categoriesService.visibleCategories;
   moreCategories = this.categoriesService.moreCategories;
   hasMoreCategories = this.categoriesService.hasMoreCategories;
+  searchQuery = signal('');
+  searchProductResults : any = null
+  searchCategoriesResults : any = null
+  searchResults : any = null
   private resizeObserver!: ResizeObserver;
+  private resizeTimeout: any;
+
   constructor() {
     if (typeof window !== 'undefined') {
       window.addEventListener('scroll', () => {
         this.isScrolled.set(window.scrollY > 50);
       });
     }
+
+    // ✅ React to signal changes properly
+    effect(() => {
+      const categories = this.categoriesService.visibleCategories();
+      console.log("cat effect");
+
+      if (!categories || categories.length === 0) return;
+
+      requestAnimationFrame(() => this.calculateVisibleCategories());
+    });
+
+    effect(() => {
+      const query = this.searchQuery();
+      console.log('Search query changed:', query);
+      if(query.length>=2){
+        this.searchFunction(query);        
+      }
+    });
   }
+  searchFunction(query: string) {
+    const lowerQuery = query.toLowerCase();
+
+    // 1️⃣ All categories
+    const allCategories = this.categoriesService.categoriesSignal();
+
+    // 2️⃣ Find categories that match the query
+    const matchedCategories = allCategories
+      .filter(cat => cat.name?.toLowerCase().includes(lowerQuery))
+      .sort((a, b) => (b.name?.toLowerCase().indexOf(lowerQuery) ?? 0) -
+                      (a.name?.toLowerCase().indexOf(lowerQuery) ?? 0));
+    console.log(matchedCategories);
+    
+    // 3️⃣ Fetch products
+    this.productService.getByFilter({ query }, []).subscribe((response: any) => {
+      const products: any[] = response.result.records;
+      console.log("Number of products ",products.length);
+      
+      // 4️⃣ Group products by category
+      const productsByCategory: Map<number, any[]> = new Map();
+      products.forEach(p => {
+        if (!productsByCategory.has(p.categ_id.id)) {
+          productsByCategory.set(p.categ_id.id, []);
+        }
+        productsByCategory.get(p.categ_id.id)!.push(p);
+      });
+
+      // 5️⃣ Build final grouped search result
+      const groupedResults: any[] = [];
+
+      // First, add matched categories if they have products
+      matchedCategories.forEach(cat => {
+        const prods = productsByCategory.get(cat.id) || [];
+        if (prods.length) {
+          groupedResults.push({ category: cat, products: prods });
+          productsByCategory.delete(cat.id); // remove from map
+        }
+      });
+
+      // Then, add remaining categories that have products (even if category didn't match)
+      productsByCategory.forEach((prods, catId) => {
+        const cat = allCategories.find(c => c.id === catId);
+        if (cat) {
+          groupedResults.push({ category: cat, products: prods });
+        }
+      });
+
+      this.searchResults = groupedResults;
+      console.log(this.searchResults);
+      
+    });
+  }
+
+  ngOnInit(): void {
+    this.authService.checkSession().subscribe();
+
+    this.authSubscription = this.authService.isAuthenticated$.subscribe(isConnected => {
+      this.connected.set(isConnected);
+    });
+  
+    
+  }
+
   ngAfterViewInit(): void {
     const nav = this.elementRef.nativeElement.querySelector('.nav');
     if (!nav) return;
 
     this.resizeObserver = new ResizeObserver(() => {
-      this.calculateVisibleCategories();
+      clearTimeout(this.resizeTimeout);
+      this.resizeTimeout = setTimeout(() => {
+        this.calculateVisibleCategories();
+      }, 100);
     });
 
     this.resizeObserver.observe(nav);
 
-    // initial run
-    setTimeout(() => this.calculateVisibleCategories());
+    // ✅ wait for full render (no more wrong widths)
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        this.calculateVisibleCategories();
+      });
+    });
   }
+
   ngOnDestroy(): void {
     if (this.resizeObserver) {
       this.resizeObserver.disconnect();
+    }
+    if (this.authSubscription) {
+      this.authSubscription.unsubscribe();
     }
   }
 
@@ -67,76 +172,41 @@ export class HeaderComponent implements  OnDestroy {
     const nav = this.elementRef.nativeElement.querySelector('.nav');
     if (!nav) return;
 
-    const elements = Array.from(
-      nav.querySelectorAll('.nav-link-wrapper')
-    ) as HTMLElement[];
-
-    const moreButton = nav.querySelector('.more-link')?.parentElement as HTMLElement;
-
     const navWidth = nav.offsetWidth;
+    const mainMenuItems = this.configService.config()?.navigation?.mainMenu || [];
+    const topLevelCount = this.categoriesService.getTopLevelCategories().length;
 
-    let usedWidth = 0;
-    let visibleCount = 0;
-    const gap = 16;
+    // Get actual widths of main menu items
+    const mainMenuLinks = Array.from(nav.querySelectorAll('.nav-link:not(.more-link)'));
+    const mainMenuActualWidth: number = mainMenuLinks
+      .slice(0, mainMenuItems.length)
+      .reduce((sum: number, el) => sum + (el as HTMLElement).offsetWidth, 0);
 
-    for (let i = 0; i < elements.length; i++) {
-      const el = elements[i];
+    const gapWidth = 32; // $spacing-lg
+    const totalGaps = mainMenuItems.length > 0 ? mainMenuItems.length * gapWidth : 0;
+    const moreButtonWidth = 80;
+    const buffer = 60;
 
-      // skip "More"
-      if (moreButton && el === moreButton) continue;
+    // Available width for categories
+    const availableForCategories = navWidth - mainMenuActualWidth - totalGaps - buffer;
 
-      // ❗ IMPORTANT: temporarily ensure it's measurable
-      el.style.display = 'flex';
+    // Estimate category item width
+    const estimatedCategoryWidth = 120;
 
-      const elWidth = el.offsetWidth;
+    // Check if all categories fit without "More" button
+    const allCategoriesWidth = topLevelCount * estimatedCategoryWidth + (topLevelCount - 1) * gapWidth;
 
-      const remaining = elements.length - (visibleCount + 1);
-      const reserveMore = remaining > 0 && moreButton ? moreButton.offsetWidth : 0;
+    if (availableForCategories >= allCategoriesWidth) {
+      // All categories fit
+      this.categoriesService.setVisibleCount(topLevelCount);
+    } else {
+      // Need "More" button - calculate how many fit
+      const availableWithMore = availableForCategories - moreButtonWidth;
+      const maxCategories = Math.floor(availableWithMore / (estimatedCategoryWidth + gapWidth));
+      const visibleCount = Math.max(0, Math.min(maxCategories, topLevelCount - 1));
 
-      if (usedWidth + elWidth + gap + reserveMore > navWidth) {
-        break;
-      }
-
-      usedWidth += elWidth + gap;
-      visibleCount++;
+      this.categoriesService.setVisibleCount(visibleCount);
     }
-
-    this.categoriesService.setVisibleCount(visibleCount);
-  }
-
-  private recalculate(nav: HTMLElement, totalCategories: number): void {
-    const allElements = Array.from(
-      nav.querySelectorAll('.nav-link-wrapper')
-    ) as HTMLElement[];
-
-    const moreButton = nav.querySelector('.more-link')?.parentElement as HTMLElement;
-
-    const navWidth = nav.offsetWidth;
-
-    let usedWidth = 0;
-    let visibleCount = 0;
-    const gap = 16;
-
-    for (let i = 0; i < allElements.length; i++) {
-      const el = allElements[i];
-
-      // ❗ skip "More" button
-      if (moreButton && el === moreButton) continue;
-
-      const elWidth = el.offsetWidth;
-
-      const remainingItems = totalCategories - (visibleCount + 1);
-      const reserveMore = remainingItems > 0 && moreButton ? moreButton.offsetWidth : 0;
-
-      if (usedWidth + elWidth + gap + reserveMore > navWidth) {
-        break;
-      }
-
-      usedWidth += elWidth + gap;
-      visibleCount++;
-    }
-
-    this.categoriesService.setVisibleCount(visibleCount);
   }
   getCategoryChildren(categoryId: number) {
     return this.categoriesService.getCategoryChildren(categoryId);
@@ -157,8 +227,6 @@ export class HeaderComponent implements  OnDestroy {
   onMoreLeave(): void {
     this.isCategoriesMenuOpen.set(false);
   }
-
-
 
   toggleMenu(): void {
     this.isMenuOpen.update(state => !state);

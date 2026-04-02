@@ -18,7 +18,7 @@
           }
 
           <a [routerLink]="['/product', product.id]" class="product-image">
-            <img [src]="product.image" [alt]="product.name">
+            <img [src]="'/odoo'+product.image" [alt]="product.name">
             <div class="product-overlay">
               <button class="quick-action" aria-label="Aperçu rapide">
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none">

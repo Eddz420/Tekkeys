@@ -1,6 +1,7 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { AuthenticationOdooService } from '../../services/auth.service';
 
 interface UserProfile {
   full_name: string;
@@ -17,16 +18,18 @@ interface UserProfile {
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss'
 })
-export class ProfileComponent {
+export class ProfileComponent implements OnInit {
+  private authService = inject(AuthenticationOdooService);
+
   isEditing = signal(false);
   saving = signal(false);
 
   profile = signal<UserProfile>({
-    full_name: 'Jean Dupont',
-    email: 'jean.dupont@example.com',
-    phone: '+33 6 12 34 56 78',
-    date_of_birth: '1990-01-15',
-    gender: 'male'
+    full_name: '',
+    email: '',
+    phone: '',
+    date_of_birth: '',
+    gender: ''
   });
 
   originalProfile = signal<UserProfile>({ ...this.profile() });
@@ -35,6 +38,27 @@ export class ProfileComponent {
     { value: 'male', label: 'Homme', icon: '👨' },
     { value: 'female', label: 'Femme', icon: '👩' },
   ];
+
+  ngOnInit(): void {
+    this.loadUserProfile();
+  }
+
+  private loadUserProfile(): void {
+    this.authService.getSessionInfo().subscribe(sessionInfo => {
+      if (sessionInfo) {
+        this.profile.set({
+          full_name: sessionInfo.partner_display_name || sessionInfo.name || '',
+          email: sessionInfo.username || '',
+          phone: '', // Not available in session info
+          date_of_birth: '', // Not available in session info
+          gender: '' // Not available in session info
+        });
+        this.originalProfile.set({ ...this.profile() });
+      }
+    });
+  }
+
+
 
   getGenderLabel(gender: string): string {
     return this.genderOptions.find(g => g.value === gender)?.label || 'Non spécifié';

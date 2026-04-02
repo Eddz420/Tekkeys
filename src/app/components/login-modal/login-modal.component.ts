@@ -17,7 +17,11 @@ export class LoginModalComponent {
   closeModal = output<void>();
   snackbarService = inject(SnackbarService);
   private authService = inject(AuthenticationOdooService);
+
   currentView = signal<ModalView>('login');
+
+  // ✅ NEW: error state
+  loginError = signal<string | null>(null);
 
   loginEmail = '';
   loginPassword = '';
@@ -37,18 +41,23 @@ export class LoginModalComponent {
 
   switchView(view: ModalView): void {
     this.currentView.set(view);
+    this.loginError.set(null); // reset error on view change
   }
 
   onLogin(): void {
-    // Empty function - user will fill later
-    this.authService.login(this.loginEmail, this.loginPassword, "wiunivers_dev").subscribe(success => {
-      if (success) {
-        this.snackbarService.success('Connexion réussie');
-        this.close();
-      } else {
-        this.snackbarService.error('Échec de la connexion');
-      }
-    } );
+    // reset error before trying again
+    this.loginError.set(null);
+
+    this.authService.login(this.loginEmail, this.loginPassword, "wiunivers_dev")
+      .subscribe(success => {
+        if (success) {
+          this.snackbarService.success('Connexion réussie');
+          this.close();
+        } else {
+          // ✅ SET ERROR MESSAGE
+          this.loginError.set('Email ou mot de passe incorrect');
+        }
+      });
   }
 
   onSignupStep1(): void {
@@ -56,14 +65,12 @@ export class LoginModalComponent {
   }
 
   onSignupStep2(): void {
-    // Empty function - user will fill later
     console.log('Signup:', this.signupNom, this.signupPrenom, this.signupEmail, this.signupPassword);
     this.snackbarService.success('Inscription réussie');
     this.close();
   }
 
   onForgotPassword(): void {
-    // Empty function - user will fill later
     console.log('Forgot password:', this.forgotEmail);
   }
 

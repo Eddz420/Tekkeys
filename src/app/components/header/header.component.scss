@@ -215,7 +215,16 @@
   color: var(--color-text-primary);
   border-radius: $border-radius-lg;
   transition: all $transition-fast;
-
+  .connected{
+    width: 8px;
+    height: 8px;
+    background-color: rgb(63, 208, 63);
+    position: absolute;
+    z-index: 50;
+    top: 26px;
+    right: 23px;
+    border-radius: 20px;
+  }
   &:hover {
     background: var(--color-surface);
     transform: translateY(-2px);

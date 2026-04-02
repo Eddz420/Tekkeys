@@ -19,11 +19,7 @@
         }
       </h1>
 
-      @if (getSelectedCategory(); as category) {
-        @if (category.description) {
-          <p class="page-description">{{ category.description }}</p>
-        }
-      }
+
     </div>
 
     <div class="browse-layout">
@@ -52,9 +48,10 @@
                 [class.active]="getSelectedCategory()?.id === category.id"
                 (click)="selectCategory(category.id)">
                 {{ category.name }}
-                @if (category.productCount) {
+                <!-- TODO: Afficher le nombre de produits dans chaque catégorie -->
+                <!-- @if (category.productCount) {
                   <span class="count">({{ category.productCount }})</span>
-                }
+                } -->
               </button>
             }
           </div>
