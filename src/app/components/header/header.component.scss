@@ -652,3 +652,198 @@
     pointer-events: none;
   }
 }
+
+.search-results-dropdown {
+  position: absolute;
+  top: calc(100% + $spacing-sm);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 600px;
+  max-height: 500px;
+  overflow-y: auto;
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: $border-radius-lg;
+  box-shadow: var(--shadow-lg);
+  padding: $spacing-sm;
+  z-index: $z-index-dropdown;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(-50%) translateY(-8px);
+  transition: all $transition-base;
+  pointer-events: none;
+
+  &.has-results {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+    pointer-events: all;
+  }
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--color-surface);
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 3px;
+
+    &:hover {
+      background: var(--color-text-tertiary);
+    }
+  }
+
+  @media (max-width: $breakpoint-lg) {
+    position: fixed;
+    top: calc(80px + 60px);
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: none;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    border-top: 1px solid var(--color-border);
+    transform: translateX(0) translateY(-8px);
+
+    &.has-results {
+      transform: translateX(0) translateY(0);
+    }
+  }
+}
+
+.no-results {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-3xl $spacing-xl;
+  text-align: center;
+  color: var(--color-text-tertiary);
+  gap: $spacing-lg;
+
+  svg {
+    opacity: 0.4;
+  }
+
+  p {
+    font-size: $font-size-base;
+    font-weight: $font-weight-medium;
+    margin: 0;
+  }
+}
+
+.search-result-group {
+  padding: $spacing-md 0;
+  border-bottom: 1px solid var(--color-border);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.category-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-sm $spacing-md;
+  background: var(--color-surface);
+  border-radius: $border-radius-md;
+  margin-bottom: $spacing-sm;
+  gap: $spacing-md;
+
+  .category-label {
+    font-size: $font-size-sm;
+    font-weight: $font-weight-bold;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-primary);
+    flex: 1;
+  }
+
+  .product-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 28px;
+    background: var(--color-primary);
+    color: var(--color-surface-elevated);
+    font-size: $font-size-xs;
+    font-weight: $font-weight-bold;
+    border-radius: $border-radius-full;
+  }
+}
+
+.products-list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.product-item {
+  display: flex;
+  gap: $spacing-md;
+  padding: $spacing-sm $spacing-md;
+  border-radius: $border-radius-md;
+  cursor: pointer;
+  transition: all $transition-fast;
+  align-items: center;
+
+  &:hover {
+    background: var(--color-surface);
+    transform: translateX(4px);
+
+    .product-name {
+      color: var(--color-accent);
+    }
+  }
+
+  .product-image {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    border-radius: $border-radius-md;
+    overflow: hidden;
+    background: var(--color-surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  .product-info {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xs;
+    min-width: 0;
+    flex: 1;
+
+    .product-name {
+      font-size: $font-size-sm;
+      font-weight: $font-weight-medium;
+      color: var(--color-text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: color $transition-fast;
+    }
+
+    .product-price {
+      font-size: $font-size-xs;
+      color: var(--color-text-tertiary);
+      font-weight: $font-weight-medium;
+    }
+  }
+}

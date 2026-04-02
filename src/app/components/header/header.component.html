@@ -73,6 +73,45 @@
             </svg>
           </button>
         </div>
+
+        @if (searchQuery().length >= 2) {
+          <div class="search-results-dropdown" [class.has-results]="searchResults && searchResults.length > 0">
+            @if (!searchResults || searchResults.length === 0) {
+              <div class="no-results">
+                <svg width="40" height="40" viewBox="0 0 20 20" fill="none">
+                  <path d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16zM19 19l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <p>Aucun produit trouvé</p>
+              </div>
+            } @else {
+              @for (group of searchResults; track group.category.id) {
+                <div class="search-result-group">
+                  <div class="category-header">
+                    <span class="category-label">{{ group.category.name }}</span>
+                    <span class="product-count">{{ group.products.length }}</span>
+                  </div>
+                  <div class="products-list">
+                    @for (product of group.products; track product.id) {
+                      <div class="product-item" (click)="navigateToProduct(product.id)">
+                        @if (product.image_1920) {
+                          <div class="product-image">
+                            <img [src]="'data:image/jpeg;base64,' + product.image_1920" [alt]="product.name" />
+                          </div>
+                        }
+                        <div class="product-info">
+                          <span class="product-name">{{ product.name }}</span>
+                          @if (product.list_price) {
+                            <span class="product-price">{{ product.list_price | number: '1.2-2' }} €</span>
+                          }
+                        </div>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            }
+          </div>
+        }
       </div>
 
       <div class="header-actions">

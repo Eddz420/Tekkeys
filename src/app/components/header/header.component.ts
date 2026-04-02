@@ -8,8 +8,7 @@ import { CartService } from '../../services/cart.service';
 import { LoginModalComponent } from '../login-modal/login-modal.component';
 import { SnackbarService } from '../../services/snackbar.service';
 import { AuthenticationOdooService } from '../../services/auth.service';
-import { debounce, debounceTime, of, Subscription, switchMap } from 'rxjs';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { Subscription } from 'rxjs';
 import { ProductsService } from '../../services/products.service';
 
 @Component({
@@ -280,5 +279,11 @@ export class HeaderComponent implements AfterViewInit, OnInit, OnDestroy {
     event.preventDefault();
     this.router.navigate(['/browse'], { queryParams: { category: categoryId } });
     this.isMenuOpen.set(false);
+  }
+
+  navigateToProduct(productId: number): void {
+    this.router.navigate(['/product', productId]);
+    this.isSearchOpen.set(false);
+    this.searchQuery.set('');
   }
 }
